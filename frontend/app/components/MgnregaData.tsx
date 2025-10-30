@@ -17,16 +17,24 @@ const MgnregaData: React.FC = () => {
 
     const fetchData = async ()=>{
         // fetch data from backend
+        console.log(`fetch data function called`)
         setLoading(true);
+
+        const stateName = indianStates.find(s => s.isoCode === state)?.name.toUpperCase();
+        const districtName = district.toUpperCase();
+        console.log(`state name: ${stateName}`)
+        console.log(`district name: ${districtName}`)
         
         await axios.get("http://localhost:8000/fetch_api_data", {
             params:{
-                state_name: indianStates.find((s)=> s.isoCode === state)?.name,
-                district_name: district
+                state_name: stateName,
+                district_name: districtName
             }
         }).then((res: { data: { data: any; }; })=>{
-            console.log("backend response ", res.data.data);
-            setData(res.data.data);
+            console.log(`state:`, stateName);
+            console.log(`district`, district)
+            console.log("backend response ", res.data);
+            setData(res.data);
 
         }).catch((err: any)=>{
             console.log("error in fetching data from backend", err);
@@ -78,7 +86,7 @@ const MgnregaData: React.FC = () => {
 
                 {data && ( 
                     <pre style={{ textAlign: "left" }}> 
-                        {JSON.stringify(data, null, 2)} 
+                        {JSON.stringify(data.data, null, 2)} 
                     </pre>
                  )}
 

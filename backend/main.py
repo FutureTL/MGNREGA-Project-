@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.services.gov_api import get_mgnrega_data
 from app.dataprocessing.data_processing import preprocess_mgnrega_data
 from contextlib import asynccontextmanager
+from fastapi.encoders import jsonable_encoder
 
 
 
@@ -32,16 +33,20 @@ app.add_middleware(
 
 @app.get("/fetch_api_data")
 async def fetch_data(state_name:str,district_name: str, fin_year: Optional[str] = None):
+    print(f"state name : {state_name}, district name :{district_name}")
     if not fin_year:
         now = datetime.now()
         fin_year = f"{now.year - 1}-{now.year}"
+        print(f"financial year {fin_year}")
     
     data= await get_mgnrega_data(state_name, district_name, fin_year)
-    print(f"data recieved from get_mgnerga_data: {data}")
+    print(f"data recieved from get_mgnerga_data of district {district_name}: {data}")
     if data:
         processed_data= preprocess_mgnrega_data(data)
         print(f"processed_data: {processed_data}")
+        # print(f"processed data length: {jsonable_encoder(processed_data)}")
         return {"status": "success", "data": processed_data}
+        # return {"status": "success", "data": data}
     
     else:
         return {"status": "error", "message": "data could not be fetched"}
